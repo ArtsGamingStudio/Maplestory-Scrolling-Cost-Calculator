@@ -12,3 +12,8 @@ The total expected cost is then simply:
 Total Cost = E_slot × Total Slots
 
 The Meso cost is calculated by multiplying the total traces by the user-inputted Meso cost per trace.
+📁 Files in This Repository
+
+    index.html: The complete, single-file HTML, CSS (Tailwind), and JavaScript application.
+
+    README.md: This guide.
