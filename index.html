@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maplestory Spell Trace Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+        }
+        .scroll-card {
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+            border-radius: 20px;
+        }
+        .gem-icon {
+            color: #6366f1; /* Indigo */
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex justify-center items-start min-h-screen">
+
+    <div class="w-full max-w-4xl scroll-card p-6 sm:p-10">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="gem-icon mb-2">✨</div>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800">Spell Trace Expected Cost Calculator</h1>
+            <p class="text-gray-600 mt-2 text-base sm:text-lg">Estimate the average Spell Trace and Meso cost to fully enhance an item.</p>
+        </header>
+
+        <!-- Input Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+            <!-- Card 1: Scroll Parameters -->
+            <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-200">
+                <h2 class="text-xl font-semibold mb-4 text-indigo-700">Enhancement Parameters</h2>
+
+                <!-- Total Slots -->
+                <div class="mb-4">
+                    <label for="total-slots" class="block text-sm font-medium text-gray-700">Maximum Slots on Item</label>
+                    <input type="number" id="total-slots" value="9" min="1" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" placeholder="e.g., 9" oninput="calculateCost()">
+                </div>
+                
+                <!-- Success Chance -->
+                <div class="mb-4">
+                    <label for="scroll-chance" class="block text-sm font-medium text-gray-700">Scroll Success Chance (%)</label>
+                    <input type="number" id="scroll-chance" value="30" min="1" max="100" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" placeholder="e.g., 30" oninput="calculateCost()">
+                </div>
+
+                <!-- Spell Traces per Attempt -->
+                <div>
+                    <label for="scroll-cost" class="block text-sm font-medium text-gray-700">Spell Traces per Attempt</label>
+                    <input type="number" id="scroll-cost" value="5000" min="1" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" placeholder="e.g., 5000" oninput="calculateCost()">
+                </div>
+            </div>
+
+            <!-- Card 2: Cost Parameters -->
+            <div class="bg-purple-50 p-5 rounded-xl border border-purple-200">
+                <h2 class="text-xl font-semibold mb-4 text-purple-700">Recovery & Market Costs</h2>
+
+                <!-- Standard Slot Fix Cost -->
+                <div class="mb-4">
+                    <label for="clean-cost" class="block text-sm font-medium text-gray-700">Spell Traces for Clean Scroll</label>
+                    <input type="number" id="clean-cost" value="10000" min="1" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-purple-500 focus:border-purple-500 transition duration-150" placeholder="e.g., 10000" oninput="calculateCost()">
+                    <p class="text-xs text-gray-500 mt-1">The cost to restore a single failed slot for a re-attempt.</p>
+                </div>
+
+                <!-- Meso Cost per Spell Trace -->
+                <div>
+                    <label for="meso-cost-per-trace" class="block text-sm font-medium text-gray-700">Meso Cost per Spell Trace</label>
+                    <input type="number" id="meso-cost-per-trace" value="500" min="0" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-purple-500 focus:border-purple-500 transition duration-150" placeholder="e.g., 500" oninput="calculateCost()">
+                    <p class="text-xs text-gray-500 mt-1">Market price of one Spell Trace in Meso (for total cost estimation).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div class="bg-white p-6 rounded-xl border-t-4 border-indigo-500 shadow-lg">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Calculation Results (Fresh Item)</h2>
+
+            <!-- Expected Cost Per Slot -->
+            <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 class="text-lg font-medium text-blue-700">Expected Cost Per Successful Slot:</h3>
+                <p id="result-expected-slot-cost" class="text-2xl font-extrabold text-blue-600 mt-1">
+                    0 Traces
+                </p>
+                <p class="text-sm text-gray-500 mt-2">
+                    (The average trace and meso cost required to achieve one successful scroll, factoring in attempts and cleaning failures.)
+                </p>
+            </div>
+
+            <!-- Average Cost Result -->
+            <div class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                <h3 class="text-lg font-medium text-green-700">Expected Total Cost for a Fully Completed Item:</h3>
+                <p id="result-average-cost" class="text-3xl font-extrabold text-green-600 mt-1">
+                    0 Traces
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for utility
+        const formatter = new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: 0
+        });
+
+        // Function to safely get a parsed number from an element ID
+        function getInputValue(id) {
+            const value = document.getElementById(id).value;
+            // Meso cost per trace can be 0, so we check for NaN and return 0 instead of checking against < 0
+            if (id === 'meso-cost-per-trace') {
+                return Math.max(0, parseFloat(value) || 0);
+            }
+            return Math.max(0, parseFloat(value) || 0);
+        }
+
+        /**
+         * Calculates the total expected cost.
+         */
+        function calculateCost() {
+            const chancePercent = getInputValue('scroll-chance');
+            const scrollCost = getInputValue('scroll-cost');
+            const totalSlots = getInputValue('total-slots');
+            const cleanCost = getInputValue('clean-cost');
+            const mesoCostPerTrace = getInputValue('meso-cost-per-trace');
+
+            const resultAverageCost = document.getElementById('result-average-cost');
+            const resultExpectedSlotCost = document.getElementById('result-expected-slot-cost');
+            
+            // 1. Input Validation
+            if (chancePercent < 1 || totalSlots < 1 || scrollCost < 1 || cleanCost < 1) {
+                resultAverageCost.textContent = "Invalid Input";
+                resultExpectedSlotCost.textContent = "Invalid Input";
+                return;
+            }
+
+            const P = chancePercent / 100; // Success Probability (P)
+
+            // 2. Expected Cost per Slot (E_slot) Calculation
+            // E_slot = (Cost per successful attempt) + (Expected cost from failures)
+            // E_slot = (ScrollCost / P) + ((1 / P - 1) * CleanCost)
+            const expectedCostPerSlot = (scrollCost / P) + ((1 / P - 1) * cleanCost);
+            
+            // Calculate Meso Cost for E_slot
+            const expectedMesoCostPerSlot = expectedCostPerSlot * mesoCostPerTrace;
+
+            // Output 2.1: Expected Cost Per Slot
+            resultExpectedSlotCost.textContent = `${formatter.format(expectedCostPerSlot)} Spell Traces (${formatter.format(expectedMesoCostPerSlot)} Meso)`;
+
+            // Total expected cost for a fresh item (Total Slots * E_slot)
+            const totalExpectedCostFresh = totalSlots * expectedCostPerSlot;
+            
+            // Total expected meso cost for fresh item
+            const totalExpectedMesoCost = totalExpectedCostFresh * mesoCostPerTrace;
+
+            // Output 2.2: Expected Cost for a Fully Completed Item
+            resultAverageCost.textContent = `${formatter.format(totalExpectedCostFresh)} Spell Traces (${formatter.format(totalExpectedMesoCost)} Meso)`;
+        }
+
+        // Run calculation on load
+        window.onload = calculateCost;
+    </script>
+</body>
+</html>
